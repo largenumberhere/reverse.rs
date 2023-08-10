@@ -1,20 +1,20 @@
 use crate::byte_utils::ReadOutBytesV;
 use std::fs::File;
-use std::io::{Seek, SeekFrom};
+use std::io::{Read, Seek, SeekFrom};
 
-pub struct ChunkFileBackwards {
-    file_reader: File,
+pub struct ChunkFileBackwards<TFile> {
+    file_reader: TFile,
     file_position: u64,
     min_position: u64,
     chunk_size: u64,
 }
 
-impl ChunkFileBackwards {
+impl<TFile: Seek+ Read> ChunkFileBackwards<TFile> {
     pub fn new(
-        mut file: File,
+        mut file: TFile,
         min_position: u64,
         chunk_size: u64,
-    ) -> Result<ChunkFileBackwards, std::io::Error> {
+    ) -> Result<ChunkFileBackwards<TFile>, std::io::Error> {
         let new_position = file.seek(SeekFrom::End(0))?;
 
         Ok(ChunkFileBackwards {
@@ -25,12 +25,12 @@ impl ChunkFileBackwards {
         })
     }
 
-    pub fn destruct(self) -> (File, u64) {
+    pub fn destruct(self) -> (TFile, u64) {
         (self.file_reader, self.file_position)
     }
 }
 
-impl Iterator for ChunkFileBackwards {
+impl<TFile: Seek+ Read> Iterator for ChunkFileBackwards<TFile> {
     type Item = Result<Vec<u8>, std::io::Error>;
 
     fn next(&mut self) -> Option<Self::Item> {

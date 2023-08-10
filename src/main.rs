@@ -69,8 +69,8 @@ fn convert() -> Result<(), ProgramError> {
     };
 
     // Load file0's header
-    // let mut file_in_reader = std::io::BufReader::new(file_in);
-    let header = Header::from_reader(&mut file_in);
+    let mut file_in_reader = std::io::BufReader::new(file_in);
+    let header = Header::from_reader(&mut file_in_reader);
     let header = match header {
         Ok(v) => v,
         Err(_) => return Err(ProgramError::InvalidWavHeader(file_in_path)),
@@ -83,10 +83,10 @@ fn convert() -> Result<(), ProgramError> {
 
     // Prepare to iterate over file
     let sample_size = calculate_sample_length(&header);
-    let position = file_in
+    let position = file_in_reader
         .stream_position()
         .map_err(|e| ProgramError::IOErrorReadingFile(file_in_path.to_string(), e))?;
-    let backwards_file_reader = ChunkFileBackwards::new(file_in, position, sample_size as u64)
+    let backwards_file_reader = ChunkFileBackwards::new(file_in_reader, position, sample_size as u64)
         .map_err(|e| ProgramError::IOErrorReadingFile(file_in_path.to_string(), e))?;
 
     // Create output file
