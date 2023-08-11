@@ -1,0 +1,15 @@
+[tasks.build-all]
+script = '''
+    cd struct_bytes_derive
+    cargo build
+    cd ..
+    cargo build
+'''
+
+[tasks.debug]
+script = '''
+    cd struct_bytes_derive
+    env RUSTFLAGS=-Awarnings cargo check --quiet
+    cd ..
+    env RUSTFLAGS=-Awarnings cargo check --quiet
+'''

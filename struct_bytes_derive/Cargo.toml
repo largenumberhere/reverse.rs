@@ -1,11 +1,15 @@
 [package]
-name = "reverse"
+name = "struct_bytes_derive"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-struct_bytes_derive = {path = "struct_bytes_derive"}
 byteorder = "1.4.3"
-thiserror = "1.0.44"
+quote = "1.0.32"
+syn = "2.0.28"
+
+
+[lib]
+proc-macro = true

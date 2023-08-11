@@ -1,12 +1,15 @@
 mod byte_utils;
 mod chunk_file_backwards;
 mod wav_bytes;
+mod into_bytes;
+mod read_primitives;
 
 use crate::chunk_file_backwards::ChunkFileBackwards;
 use crate::wav_bytes::calculate_sample_length;
 use crate::wav_bytes::contain_wav_phrase;
 use std::fs::File;
 use std::io::{ErrorKind, Seek, Write};
+use reverse::ToBytes;
 use wav_bytes::Header;
 
 #[derive(Debug, thiserror::Error)]
@@ -68,13 +71,15 @@ fn convert() -> Result<(), ProgramError> {
         }
     };
 
+    use reverse::StructFromBytes;
+
     // Load file0's header
     let mut file_in_reader = std::io::BufReader::new(file_in);
-    let header = Header::from_reader(&mut file_in_reader);
-    let header = match header {
-        Ok(v) => v,
-        Err(_) => return Err(ProgramError::InvalidWavHeader(file_in_path)),
-    };
+    let header = Header::struct_from_bytes(&mut file_in_reader);
+    // let header = match header {
+    //     Ok(v) => v,
+    //     Err(_) => return Err(ProgramError::InvalidWavHeader(file_in_path)),
+    // };
 
     // Verify file0's header
     if !contain_wav_phrase(&header) {
@@ -98,8 +103,8 @@ fn convert() -> Result<(), ProgramError> {
 
     // Copy over header to output file
     let header_raw = header
-        .to_bytes()
-        .map_err(|_| ProgramError::ByteConversionError)?;
+        .to_bytes();
+        //.map_err(|_| ProgramError::ByteConversionError)?;
     output_file
         .write(&header_raw)
         .map_err(|e| ProgramError::IOErrorReadingFile(file_out_path.to_string(), e))?;
