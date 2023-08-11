@@ -2,7 +2,9 @@ use byteorder::ReadBytesExt;
 use std::io::Read;
 
 type WavEndian = byteorder::LittleEndian;
-
+// A convent wrapper for byteorder's methods that allows a
+//  single line to do all the heavy lifting in the StructFromBytes derive macro.
+// Type-inference is a wonderful thing!
 pub trait ReadPrimitive<T, E> {
     fn read_primitive(&mut self) -> Result<T, E>;
 }

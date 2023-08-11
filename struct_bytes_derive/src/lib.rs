@@ -1,17 +1,19 @@
 use proc_macro::TokenStream;
 use syn::{DeriveInput, Ident};
 
-#[proc_macro_derive(StructToBytes)] //
+// The derive macro for StructToBytes trait
+#[proc_macro_derive(StructToBytes)]
 pub fn to_bytes_derive(items: TokenStream) ->TokenStream{
+    // Convert the token stream to an abstract syntax tree which is easier to work with
     let ast: DeriveInput =syn::parse(items).unwrap();
-    impl_to_bytes_trait(ast)
 
+    // Do the thing
+    impl_to_bytes_trait(ast)
 }
 
 fn impl_to_bytes_trait(ast: DeriveInput)-> TokenStream {
     // Get struct name
     let identifier = ast.ident;
-    //let identifier_string = identifier.to_string();
 
     // Get struct fields
     let field_identifiers: Vec<Ident> =match ast.data {
@@ -20,6 +22,7 @@ fn impl_to_bytes_trait(ast: DeriveInput)-> TokenStream {
         syn::Data::Union(_) => panic!("Unions are not supported")
     };
 
+    // Generate the trait implementation. Each field_identifier has its bytes extracted and added to the vec, then the vec is returned
     let stream:TokenStream =quote::quote!{
         use crate::into_bytes::IntoBytes;
 
@@ -33,14 +36,19 @@ fn impl_to_bytes_trait(ast: DeriveInput)-> TokenStream {
                 }
             }
         }
-    }.into();
+    }
+    //Convert back into a TokenStream
+    .into();
 
     stream
 }
-
+// The derive macro for StructFromBytes trait
 #[proc_macro_derive(StructFromBytes)]
 pub fn from_bytes_derive(item: TokenStream) -> TokenStream{
+    // Convert the token stream to an abstract syntax tree which is easier to work with
     let ast: DeriveInput = syn::parse(item).unwrap();
+
+    // Do the thing
     impl_struct_from_bytes_trait(ast)
 }
 
@@ -55,7 +63,7 @@ fn impl_struct_from_bytes_trait(ast: DeriveInput) -> TokenStream{
         syn::Data::Union(_) => panic!("Unions are not supported")
     };
 
-
+    // Generate the implementation. Each struct field is converted with something like `field = reader.read_primitive()`
     let stream:TokenStream =quote::quote!{
         use crate::read_primitives::ReadPrimitive;
         use std::io::Read;
@@ -71,14 +79,11 @@ fn impl_struct_from_bytes_trait(ast: DeriveInput) -> TokenStream{
                     };
 
                     Ok(struc)
-
                 }
             }
         }
     }.into();
 
     stream
-
-
 }
 

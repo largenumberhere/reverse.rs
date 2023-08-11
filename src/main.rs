@@ -12,6 +12,7 @@ use std::fs::File;
 use std::io::{ErrorKind, Seek, Write};
 use wav_bytes::Header;
 
+// The possible errors that are displayed if when the program fails to work as expected
 #[derive(Debug, thiserror::Error)]
 enum ProgramError {
     #[error("An unexpected IO error has occurred while trying to read from file '{0}'. Maybe try again later? Error details: {1:?} ")]
@@ -37,12 +38,12 @@ enum ProgramError {
 }
 
 fn main() {
-    match convert() {
-        Ok(_) => {}
-        Err(e) => {
-            println!("{e}");
-            std::process::exit(-1);
-        }
+    let program_result = convert();
+
+    // Print the error and exit with exit code, if one occurred
+    if let Err(e) = program_result{
+        eprintln!("{e}");
+        std::process::exit(-1);
     }
 }
 
@@ -106,6 +107,7 @@ fn convert() -> Result<(), ProgramError> {
     let header_raw = header
         .to_bytes()
         .map_err(|_| ProgramError::ByteConversionError)?;
+
     output_file
         .write(&header_raw)
         .map_err(|e| ProgramError::IOErrorReadingFile(file_out_path.to_string(), e))?;
