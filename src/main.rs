@@ -1,15 +1,15 @@
 mod byte_utils;
 mod chunk_file_backwards;
-mod wav_bytes;
 mod into_bytes;
 mod read_primitives;
+mod wav_bytes;
 
 use crate::chunk_file_backwards::ChunkFileBackwards;
 use crate::wav_bytes::calculate_sample_length;
 use crate::wav_bytes::contain_wav_phrase;
+use reverse::ToBytes;
 use std::fs::File;
 use std::io::{ErrorKind, Seek, Write};
-use reverse::ToBytes;
 use wav_bytes::Header;
 
 #[derive(Debug, thiserror::Error)]
@@ -61,7 +61,7 @@ fn convert() -> Result<(), ProgramError> {
 
     // Open file0 for reading
     let file_in = std::fs::File::open(&file_in_path);
-    let mut file_in = match file_in {
+    let file_in = match file_in {
         Ok(v) => v,
         Err(e) => {
             return match e.kind() {
@@ -91,8 +91,9 @@ fn convert() -> Result<(), ProgramError> {
     let position = file_in_reader
         .stream_position()
         .map_err(|e| ProgramError::IOErrorReadingFile(file_in_path.to_string(), e))?;
-    let backwards_file_reader = ChunkFileBackwards::new(file_in_reader, position, sample_size as u64)
-        .map_err(|e| ProgramError::IOErrorReadingFile(file_in_path.to_string(), e))?;
+    let backwards_file_reader =
+        ChunkFileBackwards::new(file_in_reader, position, sample_size as u64)
+            .map_err(|e| ProgramError::IOErrorReadingFile(file_in_path.to_string(), e))?;
 
     // Create output file
     let output_file = File::create(&file_out_path);

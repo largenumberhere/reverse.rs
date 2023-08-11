@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use syn::{DeriveInput, Ident};
 
-#[proc_macro_derive(ToBytes)] //
+#[proc_macro_derive(StructToBytes)] //
 pub fn to_bytes_derive(items: TokenStream) ->TokenStream{
     let ast: DeriveInput =syn::parse(items).unwrap();
     impl_to_bytes_trait(ast)
@@ -37,8 +37,6 @@ fn impl_to_bytes_trait(ast: DeriveInput)-> TokenStream {
 
     stream
 }
-
-
 
 #[proc_macro_derive(StructFromBytes)]
 pub fn from_bytes_derive(item: TokenStream) -> TokenStream{

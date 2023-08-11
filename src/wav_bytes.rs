@@ -1,10 +1,7 @@
-use crate::byte_utils::ReadOutBytesN;
-use byteorder::{ReadBytesExt, WriteBytesExt};
-use std::io::Write;
-use reverse::ToBytes;
 use reverse::StructFromBytes;
+use reverse::ToBytes;
 
-use struct_bytes_derive::{StructFromBytes, ToBytes};
+use struct_bytes_derive::{StructFromBytes, StructToBytes};
 
 pub fn calculate_sample_length(wav_header: &Header) -> u16 {
     let bytes_per_sample = wav_header.bitsPerSample / 8;
@@ -19,12 +16,10 @@ pub fn contain_wav_phrase(wav_header: &Header) -> bool {
             return false;
         }
     }
-
     true
 }
 
-#[derive(StructFromBytes)]
-#[derive(ToBytes)]
+#[derive(StructFromBytes, StructToBytes)]
 #[allow(unused, non_snake_case)] // The structs' fields intentionally exactly match the official WAV field names
 #[derive(Debug)]
 pub struct Header {
