@@ -2,3 +2,5 @@
 /.*
 !/.gitignore
 /output.wav
+
+/struct_bytes_derive/target/
