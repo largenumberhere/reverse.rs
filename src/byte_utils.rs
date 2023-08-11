@@ -10,7 +10,7 @@ impl<R: Read> ReadOutBytesN for R {
         let mut buff: [u8; N] = [0; N];
         self.read_exact(&mut buff)?;
 
-        return Ok(buff);
+        Ok(buff)
     }
 }
 

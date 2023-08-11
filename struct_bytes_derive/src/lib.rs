@@ -57,7 +57,7 @@ fn impl_struct_from_bytes_trait(ast: DeriveInput) -> TokenStream{
 
 
     let stream:TokenStream =quote::quote!{
-        use crate::read_primitives::ReadPrimitives;
+        use crate::read_primitives::ReadPrimitive;
         use std::io::Read;
 
         impl<R: Read> StructFromBytes<#identifier, R, std::io::Error> for #identifier {
@@ -66,7 +66,7 @@ fn impl_struct_from_bytes_trait(ast: DeriveInput) -> TokenStream{
                 {
                     let struc = #identifier {
                         #(
-                            #field_identifiers : reader.from_bytes()?,
+                            #field_identifiers : reader.read_primitive()?,
                         )*
                     };
 

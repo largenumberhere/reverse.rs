@@ -3,33 +3,35 @@ use std::io::Read;
 
 type WavEndian = byteorder::LittleEndian;
 
-pub trait ReadPrimitives<T, E> {
-    fn from_bytes(&mut self) -> Result<T, E>;
+pub trait ReadPrimitive<T, E> {
+    fn read_primitive(&mut self) -> Result<T, E>;
 }
 
-impl<const N: usize, R: Read> ReadPrimitives<[u8; N], std::io::Error> for R {
-    fn from_bytes(&mut self) -> Result<[u8; N], std::io::Error> {
+impl<const N: usize, R: Read> ReadPrimitive<[u8; N], std::io::Error> for R {
+    fn read_primitive(&mut self) -> Result<[u8; N], std::io::Error> {
         let mut bytes: [u8; N] = [0; N];
-        self.read(&mut bytes)?;
-
+        let qty = self.read(&mut bytes)?;
+        if qty != N{
+            panic!("Bytes read '{}' is not equal to array size '{}'", qty, N);
+        }
         Ok(bytes)
     }
 }
 
-impl<R: Read> ReadPrimitives<u8, std::io::Error> for R {
-    fn from_bytes(&mut self) -> Result<u8, std::io::Error> {
+impl<R: Read> ReadPrimitive<u8, std::io::Error> for R {
+    fn read_primitive(&mut self) -> Result<u8, std::io::Error> {
         self.read_u8()
     }
 }
 
-impl<R: Read> ReadPrimitives<u32, std::io::Error> for R {
-    fn from_bytes(&mut self) -> Result<u32, std::io::Error> {
+impl<R: Read> ReadPrimitive<u32, std::io::Error> for R {
+    fn read_primitive(&mut self) -> Result<u32, std::io::Error> {
         self.read_u32::<WavEndian>()
     }
 }
 
-impl<R: Read> ReadPrimitives<u16, std::io::Error> for R {
-    fn from_bytes(&mut self) -> Result<u16, std::io::Error> {
+impl<R: Read> ReadPrimitive<u16, std::io::Error> for R {
+    fn read_primitive(&mut self) -> Result<u16, std::io::Error> {
         self.read_u16::<WavEndian>()
     }
 }
