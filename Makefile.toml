@@ -13,3 +13,11 @@ script = '''
     cd ..
     env RUSTFLAGS=-Awarnings cargo check --quiet
 '''
+
+[tasks.release]
+script = '''
+    cd struct_bytes_derive
+    cargo build --release
+    cd ..
+    cargo build --release
+'''
