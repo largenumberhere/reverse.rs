@@ -4,22 +4,10 @@ use byteorder::ReadBytesExt;
 
 
 pub trait ToBytes{
-    fn to_bytes(&self) -> Vec<u8>;
+    fn to_bytes(&self) -> Result<Vec<u8>, std::io::Error>;
 }
 
-pub trait StructFromBytes<TStruct, TReader: Read>{
-    fn struct_from_bytes(reader: &mut TReader) -> TStruct;
+pub trait StructFromBytes<TStruct, TReader: Read, E>{
+    fn struct_from_bytes(reader: &mut TReader) -> Result<TStruct, E>;
 }
 
-// struct Hi{
-//     n: u8
-// }
-//
-// impl<TReader: Read> StructFromBytes<Hi, TReader> for TReader{
-//     fn struct_from_bytes(reader: &mut TReader) -> Hi {
-//         Hi{
-//             n: reader.read_u8().unwrap()
-//
-//         }
-//     }
-// }

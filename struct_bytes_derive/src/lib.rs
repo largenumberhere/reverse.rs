@@ -24,11 +24,13 @@ fn impl_to_bytes_trait(ast: DeriveInput)-> TokenStream {
         use crate::into_bytes::IntoBytes;
 
         impl ToBytes for #identifier {
-            fn to_bytes(&self) -> Vec<u8> {
-                let mut bytes = vec![];
-                #( self.#field_identifiers.into_bytes(&mut bytes); )*;
+            fn to_bytes(&self) -> Result<Vec<u8>, std::io::Error> {
+                {
+                    let mut bytes = vec![];
+                    #( self.#field_identifiers.into_bytes(&mut bytes)?; )*;
 
-                bytes
+                    Ok(bytes)
+                }
             }
         }
     }.into();
@@ -60,13 +62,18 @@ fn impl_struct_from_bytes_trait(ast: DeriveInput) -> TokenStream{
         use crate::read_primitives::ReadPrimitives;
         use std::io::Read;
 
-        impl<R: Read> StructFromBytes<#identifier, R> for #identifier {
-            fn struct_from_bytes(reader: &mut R) -> #identifier {
+        impl<R: Read> StructFromBytes<#identifier, R, std::io::Error> for #identifier {
+            fn struct_from_bytes(reader: &mut R) -> Result<#identifier, std::io::Error> {
                 // Make each field of the struct calculated from read_primitives::from_bytes(&mut reader)
-                #identifier {
-                    #(
-                        #field_identifiers : reader.from_bytes(),
-                    )*
+                {
+                    let struc = #identifier {
+                        #(
+                            #field_identifiers : reader.from_bytes()?,
+                        )*
+                    };
+
+                    Ok(struc)
+
                 }
             }
         }

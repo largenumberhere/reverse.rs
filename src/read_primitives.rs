@@ -4,33 +4,33 @@ use crate::wav_bytes::Header;
 
 type WavEndian = byteorder::LittleEndian;
 
-pub trait ReadPrimitives<T>{
-    fn from_bytes(&mut self) -> T;
+pub trait ReadPrimitives<T, E>{
+    fn from_bytes(&mut self) -> Result<T, E>;
 }
 
-impl<const N: usize, R: Read> ReadPrimitives<[u8;N]> for R{
-    fn from_bytes(&mut self) -> [u8; N] {
+impl<const N: usize, R: Read> ReadPrimitives<[u8;N], std::io::Error> for R{
+    fn from_bytes(&mut self) -> Result<[u8; N], std::io::Error> {
         let mut bytes: [u8; N]= [0; N];
-        self.read(&mut bytes).unwrap();
-        
-        bytes
+        self.read(&mut bytes)?;
+
+        Ok(bytes)
     }
 }
 
-impl<R: Read> ReadPrimitives<u8> for R{
-    fn from_bytes(&mut self) -> u8 {
-        self.read_u8().unwrap()
+impl<R: Read> ReadPrimitives<u8, std::io::Error> for R{
+    fn from_bytes(&mut self) -> Result<u8, std::io::Error> {
+        self.read_u8()
     }
 }
 
-impl<R: Read> ReadPrimitives<u32> for R{
-    fn from_bytes(&mut self) -> u32 {
-        self.read_u32::<WavEndian>().unwrap()
+impl<R: Read> ReadPrimitives<u32, std::io::Error> for R{
+    fn from_bytes(&mut self) -> Result<u32, std::io::Error> {
+        self.read_u32::<WavEndian>()
     }
 }
 
-impl<R: Read> ReadPrimitives<u16> for R {
-    fn from_bytes(&mut self) -> u16 {
-        self.read_u16::<WavEndian>().unwrap()
+impl<R: Read> ReadPrimitives<u16, std::io::Error> for R {
+    fn from_bytes(&mut self) -> Result<u16, std::io::Error> {
+        self.read_u16::<WavEndian>()
     }
 }
