@@ -21,3 +21,17 @@ script = '''
     cd ..
     cargo build --release
 '''
+
+[tasks.test-all]
+dependencies = ["release"]
+script_runner = "powershell"
+script_extension = "ps1"
+script = '''
+    echo "Removing output.wav, if it does not yet exist, ignore the following error."
+    rm output.wav
+    target/release/reverse.exe input.wav output.wav
+    echo "The output file differs in the following way(s):"
+    cmp expected_output.wav output.wav
+    echo ""
+    echo "Test complete"
+'''
